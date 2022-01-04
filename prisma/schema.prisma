@@ -11,14 +11,6 @@ datasource db {
 }
 
 
-model BlogUser {
-  id String @id @db.Uuid()
-  name String @db.VarChar(255)
-  email String @unique @db.VarChar(255)
-  BlogPost BlogPost[]
-  BlogProfile BlogProfile?
-}
-
 model BlogPost {
   id String @id @db.Uuid()
   title String @db.VarChar(255)
@@ -26,14 +18,5 @@ model BlogPost {
   createdAt DateTime @db.Timestamp()
   updatedAt DateTime @db.Timestamp() @default(now())
   published Boolean @default(false)
-  authorId String @db.Uuid()
-  BlogUser BlogUser @relation(fields: [authorId], references: [id])
-}
-
-
-model BlogProfile {
-  id String @id @db.Uuid()
-  bio String
-  userId String @db.Uuid() @unique
-  BlogUser BlogUser @relation(fields: [userId], references: [id])
+  author String @db.VarChar(255)
 }

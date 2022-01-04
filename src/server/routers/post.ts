@@ -11,7 +11,7 @@ export const postRouter = createRouter()
       content: z.string().min(10),
       createdAt: z.date().default(new Date()),
       published: z.boolean().default(false),
-      authorId: z.string().uuid()
+      author: z.string().min(1).max(255)
     }),
     async resolve({ ctx, input }) {
       const post = await ctx.prisma.blogPost.create({
