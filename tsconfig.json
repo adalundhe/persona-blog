@@ -29,6 +29,7 @@
   "exclude": ["node_modules"],
   "paths": {
     "@/components/*": ["components/*"],
-    "@/pages/*": ["pages/*"]
+    "@/pages/*": ["pages/*"],
+    "@/server/*": ["server/*"]
   }
 }

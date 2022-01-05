@@ -14,13 +14,18 @@
     "@trpc/next": "^9.16.0",
     "@trpc/react": "^9.16.0",
     "@trpc/server": "^9.16.0",
+    "@types/cors": "^2.8.12",
     "@types/jest": "^27.4.0",
+    "@types/uuid": "^8.3.3",
+    "axios": "^0.24.0",
+    "cors": "^2.8.5",
     "next": "12.0.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-query": "^3.34.7",
     "superjson": "^1.8.0",
     "ts-jest": "^27.1.2",
+    "uuid-by-string": "^3.0.5",
     "zod": "^3.11.6"
   },
   "devDependencies": {
