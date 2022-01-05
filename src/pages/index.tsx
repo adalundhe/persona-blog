@@ -1,13 +1,15 @@
 import { trpc } from '../utils/trpc';
 
 const IndexPage = () => {
-  const hello = trpc.useQuery(['hello', { text: 'client' }]);
-  if (!hello.data) {
+  const posts = trpc.useQuery(["post.all"])
+  console.log(posts.data)
+
+  if (!posts.data) {
     return <div>Loading...</div>;
   }
   return (
     <div>
-      <p>{hello.data.greeting}</p>
+      <p>Hi!</p>
     </div>
   );
 };

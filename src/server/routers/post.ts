@@ -28,7 +28,7 @@ export const postRouter = createRouter()
        * @link https://trpc.io/docs/useInfiniteQuery
        */
 
-      return ctx.prisma.blogPost.findMany({
+      return await ctx.prisma.blogPost.findMany({
         select: {
           id: true,
           title: true,
