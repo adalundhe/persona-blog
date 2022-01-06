@@ -1,12 +1,20 @@
 import axios, { AxiosResponse } from 'axios';
 import getConfig from "next/config";
 
+interface DevToEnv {
+    DEVTO_USERNAME: string;
+    DEVTO_API_KEY: string;
+    DEVTO_URL: string;
+}
+
 interface ArticleLinkFetchRequest {
      count: string;
+     env?: DevToEnv;
 }
 
 interface ArticleFetchRequest {
     articleId: string;
+    env?: DevToEnv;
 }
 
 const sanitizeDevToMarkdown = async (markdown: string) => {
@@ -22,20 +30,29 @@ const sanitizeDevToMarkdown = async (markdown: string) => {
 }
 
 
+
 class Client {
 
 
     posts = {
         fetchLatest: async function({
-            count
+            count,
+            env
         }: ArticleLinkFetchRequest){
 
-            const { publicRuntimeConfig } = getConfig();
+            let devToEnv = env;
+
+            if (devToEnv === undefined){
+                const { publicRuntimeConfig } = getConfig();
+                devToEnv = publicRuntimeConfig;
+            }
+
             const { 
                 DEVTO_API_KEY,
                 DEVTO_URL,
                 DEVTO_USERNAME
-             } = <{ DEVTO_USERNAME: string, DEVTO_API_KEY: string, DEVTO_URL: string }>publicRuntimeConfig;
+             } = <{ DEVTO_USERNAME: string, DEVTO_API_KEY: string, DEVTO_URL: string }>devToEnv;
+            
             
             const params = { 
                 username: DEVTO_USERNAME, 
@@ -60,13 +77,22 @@ class Client {
                 status
             };
         },
-        fetchArticle: async function ({ articleId }: ArticleFetchRequest) {
+        fetchArticle: async function ({ 
+            articleId, 
+            env 
+        }: ArticleFetchRequest) {
 
-            const { publicRuntimeConfig } = getConfig();
+            let devToEnv = env;
+
+            if (devToEnv === undefined){
+                const { publicRuntimeConfig } = getConfig();
+                devToEnv = publicRuntimeConfig;
+            }
+
             const { 
                 DEVTO_API_KEY,
                 DEVTO_URL
-             } = <{ DEVTO_USERNAME: string, DEVTO_API_KEY: string, DEVTO_URL: string }>publicRuntimeConfig;
+             } = <{ DEVTO_USERNAME: string, DEVTO_API_KEY: string, DEVTO_URL: string }>devToEnv;
 
             const headers = { 'api-key': DEVTO_API_KEY };
             const { data, status }: AxiosResponse = await axios.get(`${DEVTO_URL}/articles/${articleId}`, { headers });
