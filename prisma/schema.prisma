@@ -13,7 +13,8 @@ datasource db {
 
 model BlogPost {
   id String @id @db.Uuid()
-  devToId String @unique @db.VarChar(255)
+  devToId String? @unique @db.VarChar(255)
+  hashnodeId String? @unique @db.VarChar(255)
   title String @db.VarChar(255)
   content String @db.Text()
   tags String[] @db.VarChar(255)
@@ -21,6 +22,6 @@ model BlogPost {
   createdAt DateTime @db.Timestamp()
   updatedAt DateTime @db.Timestamp() @default(now())
   published Boolean @default(false)
-  publish_date String @db.VarChar(255)
+  publishedDate String @db.VarChar(255)
   author String @db.VarChar(255)
 }

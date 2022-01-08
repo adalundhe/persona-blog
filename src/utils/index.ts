@@ -1,7 +1,10 @@
-import { getLatestPosts } from "./devTo";
+import { getLatestDevToPosts, getLatestHashnodePosts, createNewDevToPost, createNewHashnodePost } from "./blogs";
 
 export default {
-    devTo: {
-        getLatestPosts
+    blogs: {
+        getLatestHashnodePosts,
+        getLatestDevToPosts,
+        createNewDevToPost,
+        createNewHashnodePost
     }
 }

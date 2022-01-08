@@ -3,8 +3,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import utils from 'utils';
 import { SerializableBlogPost } from 'types/utils/blogs';
 
-
-
 export const config = {
   api: {
     bodyParser: true,
@@ -19,15 +17,15 @@ export default async function handler(
 
     await corsMiddleware.executeCors(req, res, corsMiddleware.settings);
 
-    const postsReponse = await utils.blogs.getLatestDevToPosts({
+    const postsReponse = await utils.blogs.getLatestHashnodePosts({
       count: (req.query.count as string || "5")
     });
-
-    let blogPosts = postsReponse.props.data as Array<SerializableBlogPost>;
 
     if (postsReponse.props.error){
       return await res.status(500).json(postsReponse);
     }
+
+    let blogPosts = postsReponse.props.data as Array<SerializableBlogPost>;
 
     for (const idx in blogPosts){
 
@@ -41,7 +39,7 @@ export default async function handler(
         blogPosts[idx] = newBlogPost.props.data as SerializableBlogPost;
 
       }
-
+      
     }
 
     postsReponse.props.data = blogPosts;
