@@ -2,20 +2,18 @@ import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import getConfig from "next/config";
 import Case from 'case';
 import getUuid from 'uuid-by-string';
-import { ArticleLinkFetchRequest, ArticlePostRequest, HashnodeData, HashnodeEnv } from 'types/server/services/types';
+import { FetchRequest, CreatePostRequest, HashnodeData, HashnodeEnv } from 'types/server/services/types';
+
+
+const { publicRuntimeConfig } = getConfig();
+const hashnodeEnv = publicRuntimeConfig as HashnodeEnv;
 
 
 class Client {
 
     posts = {
-        fetchLatest: async function ({ count, env }: ArticleLinkFetchRequest) {
+        fetchLatest: async function ({ count }: FetchRequest) {
 
-            let hashnodeEnv = env as HashnodeEnv;
-
-            if (hashnodeEnv === undefined){
-                const { publicRuntimeConfig } = getConfig();
-                hashnodeEnv = publicRuntimeConfig;
-            }
 
             const client = new ApolloClient({
                 uri: hashnodeEnv?.HASHNODE_URL,
@@ -83,16 +81,8 @@ class Client {
         },
         createOrUpdate: async function({ 
             blogPost, 
-            env,
             update 
-        }: ArticlePostRequest){
-
-            let hashnodeEnv = env as HashnodeEnv;
-
-            if (hashnodeEnv === undefined){
-                const { publicRuntimeConfig } = getConfig();
-                hashnodeEnv = publicRuntimeConfig;
-            }
+        }: CreatePostRequest){
 
             const client = new ApolloClient({
                 uri: hashnodeEnv?.HASHNODE_URL,
@@ -121,6 +111,9 @@ class Client {
                 title: blogPost.title,
                 slug: Case.kebab(blogPost.title),
                 contentMarkdown: blogPost.content,
+                isPartOfPublication: {
+                    publicationId: hashnodeEnv.HASHNODE_PUBLICATION_ID
+                },
                 tags: blogPostTags
             };
 
@@ -129,7 +122,7 @@ class Client {
             if (update) {
                 const { data } = await client.mutate({
                     mutation: gql`
-                        mutation updateStory($input: CreateStoryInput!, $postId: String!) {
+                        mutation updateStory($input: UpdateStoryInput!, $postId: String!) {
                             updateStory(input: $input, postId: $postId) {
                                 code
                                 success
@@ -144,11 +137,11 @@ class Client {
                     `,
                     variables: {
                         input: serializedPost,
-                        publicationId: hashnodeEnv?.HASHNODE_PUBLICATION_ID as string
+                        postId: blogPost.hashnodeId as string
                     }
                 });
 
-                hashnodeData = data.createPublicationStory;
+                hashnodeData = data.updateStory;
             }
             else {
                 const { data } = await client.mutate({
@@ -202,93 +195,6 @@ class Client {
                     publish_date: post.dateUpdated ?? post.dateAdded,
                 },
                 status: hashnodeData.code
-            };
-
-        },
-        updateExisting: async function({ blogPost, env }: ArticlePostRequest){
-
-            let hashnodeEnv = env as HashnodeEnv;
-
-            if (hashnodeEnv === undefined){
-                const { publicRuntimeConfig } = getConfig();
-                hashnodeEnv = publicRuntimeConfig;
-            }
-
-            const client = new ApolloClient({
-                uri: hashnodeEnv?.HASHNODE_URL,
-                cache: new InMemoryCache(),
-                headers: {
-                    Authorization: hashnodeEnv.HASHNODE_API_KEY 
-                }
-            });
-
-            const blogPostTags = blogPost.tags.length > 0 ? blogPost.tags.map(
-                (tag: string) => ({
-                    _id: getUuid(blogPost.title).split('-').pop(),
-                    slug: tag,
-                    name: tag
-
-                })
-            ) : [
-                {
-                    _id: getUuid(blogPost.title).split('-').pop(),
-                    slug: Case.camel(blogPost.title),
-                    name: Case.camel(blogPost.title)
-                }
-            ]
-
-            const serializedPost = {
-                title: blogPost.title,
-                slug: Case.kebab(blogPost.title),
-                contentMarkdown: blogPost.content,
-                tags: blogPostTags
-            };
-
-            const { data } = await client.mutate({
-                mutation: gql`
-                    mutation updateStory($input: CreateStoryInput!, $postId: String!) {
-                        updateStory(input: $input, postId: $postId) {
-                            code
-                            success
-                            message
-                            post {
-                                _id
-                                dateAdded
-                                dateUpdated
-                            }
-                        }
-                    }
-                `,
-                variables: {
-                    input: serializedPost,
-                    publicationId: hashnodeEnv?.HASHNODE_PUBLICATION_ID as string
-                }
-            });
-
-            const error = data.createPublicationStory.success === false;
-
-            if (error){
-                return {
-                    error: error,
-                    message: data.createPublicationStory.message,
-                    data: null,
-                    status: data.createPublicationStory.code
-                }
-            }
-
-            const post = data.createPublicationStory.post;
-
-            return {
-                error: error,
-                message: 'OK',
-                data: {
-                    id: post._id as string,
-                    createdAt: blogPost.createdAt ? blogPost.createdAt : new Date(post.dateAdded),
-                    updatedAt: new Date(post.dateUpdated ?? post.dateAdded),
-                    published: true,
-                    publish_date: post.dateUpdated ?? post.dateAdded,
-                },
-                status: data.createPublicationStory.code
             };
 
         }

@@ -1,7 +1,7 @@
 import { corsMiddleware } from 'server/services';
 import { NextApiRequest, NextApiResponse } from "next";
 import utils from 'utils';
-import { SerializableBlogPost } from 'types/utils/blogs';
+import { BlogPost } from '@prisma/client';
 
 export const config = {
   api: {
@@ -25,18 +25,24 @@ export default async function handler(
       return await res.status(500).json(postsReponse);
     }
 
-    let blogPosts = postsReponse.props.data as Array<SerializableBlogPost>;
+    let blogPosts = postsReponse.props.data as Array<BlogPost>;
+    const isUpdate = req.query.update === "true";
 
     for (const idx in blogPosts){
 
-      const blogPost = blogPosts[idx] as SerializableBlogPost;
+      const blogPost = blogPosts[idx] as BlogPost;
 
-      if (blogPost.devToId === null){
+      if (blogPost.devToId === null || isUpdate){
         const newBlogPost = await utils.blogs.createNewDevToPost({
-          blogPost: blogPost
+          blogPost,
+          update: isUpdate
         });
 
-        blogPosts[idx] = newBlogPost.props.data as SerializableBlogPost;
+        if (newBlogPost.props.error){
+          return await res.status(newBlogPost.props.status as number).json(newBlogPost.props)
+        }
+
+        blogPosts[idx] = newBlogPost.props.data as BlogPost;
 
       }
       

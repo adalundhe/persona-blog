@@ -1,16 +1,17 @@
-import { devTo } from 'server/services'
+import { devTo, hashnode } from 'server/services'
 import { PrismaClient, BlogPost } from '@prisma/client';
 import getUuid from 'uuid-by-string';
-import { hashnode } from "server/services";
-import { LatestPostsRequest, NewPostRequest, SerializableBlogPost } from 'types/utils/blogs';
+import { CreatePostRequest } from 'types/server/services/types';
+import { FetchRequest } from 'types/server/services/types';
+import { AxiosError } from 'axios';
 
 
-const getLatestHashnodePosts = async ({ count }: LatestPostsRequest) => {
+const getLatestHashnodePosts = async ({ count }: FetchRequest) => {
   const prisma = new PrismaClient();
   const HashnodeClient = new hashnode.Client();
 
   const hashnodePosts = await HashnodeClient.posts.fetchLatest({
-    count: parseInt(count)
+    count: count
   })
 
   if (hashnodePosts.error){
@@ -65,22 +66,19 @@ const getLatestHashnodePosts = async ({ count }: LatestPostsRequest) => {
     props: {
       message: 'OK',
       error: false,
-      data: posts.map((post: BlogPost) => ({
-        ...post,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString()
-      })) as Array<SerializableBlogPost>
+      data: posts
     }
   }
 }
 
-const createNewHashnodePost = async ({ blogPost }: NewPostRequest) => {
+const createNewHashnodePost = async ({ blogPost, update }: CreatePostRequest) => {
   const prisma = new PrismaClient();
   const HashnodeClient = new hashnode.Client();
 
   try {
     const hashnodePost = await HashnodeClient.posts.createOrUpdate({
-      blogPost
+      blogPost,
+      update
     })
   
     if (hashnodePost.error){
@@ -108,16 +106,12 @@ const createNewHashnodePost = async ({ blogPost }: NewPostRequest) => {
       props: {
         message: 'OK',
         error: false,
-        data: {
-          ...post,
-          createdAt: post.createdAt.toISOString(),
-          updatedAt: post.updatedAt.toISOString()
-        } as SerializableBlogPost
+        data: post
       }
     }
     
   } catch (requestError) {
-    
+
     return {
       props: {
         error: true,
@@ -131,7 +125,7 @@ const createNewHashnodePost = async ({ blogPost }: NewPostRequest) => {
 }
 
 
-const getLatestDevToPosts = async ({ count }: LatestPostsRequest) => {
+const getLatestDevToPosts = async ({ count }: FetchRequest) => {
   const prisma = new PrismaClient();
   const DevToClient = new devTo.Client();
 
@@ -213,22 +207,20 @@ const getLatestDevToPosts = async ({ count }: LatestPostsRequest) => {
     props: {
       message: 'OK',
       error: false,
-      data: posts.map((post: BlogPost) => ({
-        ...post,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString()
-      })) as Array<SerializableBlogPost>
+      data: posts
     }
   }
 }
 
-const createNewDevToPost = async ({ blogPost }: NewPostRequest) => {
+const createNewDevToPost = async ({ blogPost, update }: CreatePostRequest) => {
   const prisma = new PrismaClient();
   const DevToClient = new devTo.Client();
 
   try {
+
     const devToPost = await DevToClient.posts.createOrUpdate({
-      blogPost: blogPost
+      blogPost,
+      update
     })
   
     if (devToPost.error){
@@ -256,21 +248,20 @@ const createNewDevToPost = async ({ blogPost }: NewPostRequest) => {
       props: {
         message: 'OK',
         error: false,
-        data: {
-          ...post,
-          createdAt: post.createdAt.toISOString(),
-          updatedAt: post.updatedAt.toISOString()
-        } as SerializableBlogPost
+        data: post
       }
     }
 
   } catch (requestError) {
 
+    const axiosError = requestError as AxiosError;
+
     return {
       props: {
         error: true,
-        message: requestError as string,
-        status: 400
+        message: axiosError.message,
+        status: axiosError.code ?? axiosError.response?.status,
+        data: null
       }
     }
     

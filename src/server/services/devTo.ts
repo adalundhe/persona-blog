@@ -1,9 +1,12 @@
 import axios, { AxiosResponse } from 'axios';
 import getConfig from "next/config";
 import Case from 'case';
-import { ArticleFetchRequest, ArticleLinkFetchRequest, ArticlePostRequest, DevToData, DevToEnv } from 'types/server/services/types';
+import { ArticleFetchRequest, FetchRequest, CreatePostRequest, DevToData, DevToEnv } from 'types/server/services/types';
 
 
+
+const { publicRuntimeConfig } = getConfig();
+const devToEnv = publicRuntimeConfig as DevToEnv;
 
 
 const sanitizeDevToMarkdown = async (markdown: string) => {
@@ -25,16 +28,8 @@ class Client {
 
     posts = {
         fetchLatest: async function({
-            count,
-            env
-        }: ArticleLinkFetchRequest){
-
-            let devToEnv = env as DevToEnv;
-
-            if (devToEnv === undefined){
-                const { publicRuntimeConfig } = getConfig();
-                devToEnv = publicRuntimeConfig;
-            }
+            count
+        }: FetchRequest){
 
             const { 
                 DEVTO_API_KEY,
@@ -67,16 +62,8 @@ class Client {
             };
         },
         fetchArticle: async function ({ 
-            articleId, 
-            env 
+            articleId
         }: ArticleFetchRequest) {
-
-            let devToEnv = env as DevToEnv;
-
-            if (devToEnv === undefined){
-                const { publicRuntimeConfig } = getConfig();
-                devToEnv = publicRuntimeConfig;
-            }
 
             const { 
                 DEVTO_API_KEY,
@@ -115,15 +102,8 @@ class Client {
         },
         createOrUpdate: async function({ 
             blogPost, 
-            env,
             update 
-        }: ArticlePostRequest){
-            let devToEnv = env as DevToEnv;
-
-            if (devToEnv === undefined){
-                const { publicRuntimeConfig } = getConfig();
-                devToEnv = publicRuntimeConfig;
-            }
+        }: CreatePostRequest){
 
             const { 
                 DEVTO_API_KEY,
@@ -156,7 +136,7 @@ class Client {
             if (update){
 
                 const { data, status }: AxiosResponse = await axios.put(
-                    `${DEVTO_URL}/articles`, 
+                    `${DEVTO_URL}/articles/${blogPost.devToId}`, 
                     {
                         article: {
                             title: blogPost.title,
@@ -166,10 +146,7 @@ class Client {
                         }
                     },
                     {
-                        headers,
-                        params: {
-                            id: parseInt(blogPost.devToId as string)
-                        }
+                        headers
                     }
                 );
 

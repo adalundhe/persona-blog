@@ -1,7 +1,7 @@
 import { corsMiddleware } from 'server/services';
 import { NextApiRequest, NextApiResponse } from "next";
 import utils from 'utils';
-import { SerializableBlogPost } from 'types/utils/blogs';
+import { BlogPost } from '@prisma/client';
 
 
 
@@ -23,26 +23,29 @@ export default async function handler(
       count: (req.query.count as string || "1")
     });
 
-    let blogPosts = postsReponse.props.data as Array<SerializableBlogPost>;
+    let blogPosts = postsReponse.props.data as Array<BlogPost>;
 
     if (postsReponse.props.error){
       return await res.status(500).json(postsReponse);
     }
 
+    const isUpdate = req.query.update === "true";
+
     for (const idx in blogPosts){
 
-      const blogPost = blogPosts[idx] as SerializableBlogPost;
+      const blogPost = blogPosts[idx] as BlogPost;
 
-      if (blogPost.hashnodeId === null){
+      if (blogPost.hashnodeId === null || isUpdate){
         const newBlogPost = await utils.blogs.createNewHashnodePost({
-          blogPost: blogPost
+          blogPost,
+          update: isUpdate
         });
 
         if (newBlogPost.props.error){
           return await res.status(400).json(newBlogPost.props)
         }
 
-        blogPosts[idx] = newBlogPost.props.data as SerializableBlogPost;
+        blogPosts[idx] = newBlogPost.props.data as BlogPost;
 
       }
 

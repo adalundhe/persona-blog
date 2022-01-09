@@ -1,71 +1,25 @@
 import { trpc } from '../utils/trpc';
-import utils from 'utils';
-import { SerializableBlogPost } from 'types/utils/blogs';
+import { InferGetServerSidePropsType } from 'next';
 
 
-export async function getStaticProps() {
-
-  const devToPosts = await utils.blogs.getLatestDevToPosts({
-    count: "1"
-  });
-
-  for (const idx in devToPosts.props.data){
-
-    const blogPost = devToPosts.props.data[idx] as SerializableBlogPost;
-
-    if (blogPost.hashnodeId === null){
-      const newHashNodePost = await utils.blogs.createNewHashnodePost({
-        blogPost
-      });
-
-      devToPosts.props.data[idx] = newHashNodePost.props.data as SerializableBlogPost;
-    }
-
-  }
-
-  const hashnodePosts = await utils.blogs.getLatestHashnodePosts({
-    count: "1"
-  })
-
-  for (const idx in hashnodePosts.props.data as Array<SerializableBlogPost>){
-
-    const blogPost = hashnodePosts.props.data[idx] as SerializableBlogPost;
-
-    if (blogPost.devToId === null){
-      const newDevToPost = await utils.blogs.createNewDevToPost({
-        blogPost
-      });
-
-      hashnodePosts.props.data[idx] = newDevToPost.props.data as SerializableBlogPost;
-    }
-
-  }
-
+export async function getServerSideProps() {
+  
   return {
     props: {
-      error: devToPosts.props.error || hashnodePosts.props.error,
-      message: devToPosts.props.error ? devToPosts.props.message : hashnodePosts.props.error ? hashnodePosts.props.message : 'OK',
-      data: [
-        ...devToPosts.props.data,
-        ...hashnodePosts.props.data
-      ],
-      status: (devToPosts.props.error || hashnodePosts.props.error) ? 400 : 200
     }
   }
 
 }
 
-const IndexPage = () => {
-  const posts = trpc.useQuery(["post.all"])
-  console.log(posts.data)
+const IndexPage = ({ }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
 
-  if (!posts.data) {
-    return <div>Loading...</div>;
-  }
+  const posts = trpc.useQuery(["post.paginated", {limit: 2, cursor: null}]); 
+
   return (
+    posts.data ? 
     <div>
       <p>Hi!</p>
-    </div>
+    </div> : <div>Loading...</div>
   );
 };
 

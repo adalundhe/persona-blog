@@ -1,10 +1,36 @@
-import { SerializableBlogPost } from "types/utils/blogs";
+import { BlogPost } from '@prisma/client'; 
 
+
+export interface GithubEnv {
+    GITHUB_USERNAME: string;
+    GITHUB_PERSONAL_ACCESS_TOKEN: string;
+}
+
+export interface OpenWeatherEnv {
+    OPEN_WEATHER_URL: string;
+    OPEN_WEATHER_API_KEY: string;
+}
 
 export interface DevToEnv {
     DEVTO_USERNAME: string;
     DEVTO_API_KEY: string;
     DEVTO_URL: string;
+}
+
+export interface HashnodeEnv {
+    HASHNODE_USERNAME: string;
+    HASHNODE_API_KEY: string;
+    HASHNODE_URL: string;
+    HASHNODE_PUBLICATION_ID: string;
+}
+
+export interface TwitterEnv {
+    TWITTER_API_KEY: string;
+    TWITTER_API_KEY_SECRET: string;
+    TWITTER_BEARER_TOKEN: string
+    TWITTER_APP_ID: string;
+    TWITTER_USERNAME: string;
+    
 }
 
 export interface DevToData {
@@ -32,16 +58,8 @@ export interface HashnodeData {
     }
 }
 
-export interface HashnodeEnv {
-    HASHNODE_USERNAME: string;
-    HASHNODE_API_KEY: string;
-    HASHNODE_URL: string;
-    HASHNODE_PUBLICATION_ID: string;
-}
-
-export interface ArticleLinkFetchRequest {
+export interface FetchRequest {
      count: string | number;
-     env?: DevToEnv | HashnodeEnv;
 }
 
 export interface ArticleFetchRequest {
@@ -49,10 +67,76 @@ export interface ArticleFetchRequest {
     env?: DevToEnv;
 }
 
-export interface ArticlePostRequest {
-    blogPost: SerializableBlogPost;
+export interface CreatePostRequest {
+    blogPost: BlogPost;
     update?: boolean;
-    env?: DevToEnv | HashnodeEnv;
+}
+
+export interface Commit {
+    sha: string,
+    message: string,
+    url: string
+}
+
+export interface CommitPayload {
+    commits: Array<Commit>,
+    head: string
+}
+
+export interface LocationWeather {
+    id: number;
+    main: string;
+    description: string;
+    icon: string;
 }
 
 
+export interface WeatherStats {
+    temp: number;
+    feels_like: number;
+    temp_min: number;
+    temp_max: number;
+    pressure: number;
+    humidity: number
+}
+
+export interface WindStats {
+    speed: number;
+    deg: number;
+    gust: number
+}
+
+export interface WeatherMetadata {
+    type: number;
+    id: number;
+    country: string;
+    sunrinse: number;
+    sunset: number;
+}
+
+export interface WeatherPayload {
+    coord: {
+        lon: number;
+        lat: number;
+    },
+    weather: Array<LocationWeather>;
+    base: string;
+    main: WeatherStats,
+    visibility: number;
+    wind: WindStats,
+    sys: WeatherMetadata;
+    timezone: number;
+    id: number;
+    name: string;
+    cod: number
+}
+
+
+export interface Tweet {
+    name: string;
+    username: string;
+    profileImage: string;
+    tweet: string;
+    likes: number;
+    retweets: number;
+}

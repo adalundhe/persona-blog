@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
+
+const withImages = require('next-images');
+
+
 module.exports = {
+  ...withImages(),
   reactStrictMode: true,
   publicRuntimeConfig: {
     // Will be available on both server and client
@@ -9,6 +14,13 @@ module.exports = {
     HASHNODE_URL: process.env.HASHNODE_URL,
     HASHNODE_API_KEY: process.env.HASHNODE_API_KEY,
     HASHNODE_USERNAME: process.env.HASHNODE_USERNAME,
-    HASHNODE_PUBLICATION_ID: process.env.HASHNODE_PUBLICATION_ID
+    HASHNODE_PUBLICATION_ID: process.env.HASHNODE_PUBLICATION_ID,
+    GITHUB_PERSONAL_ACCESS_TOKEN: process.env.GITHUB_PERSONAL_ACCESS_TOKEN,
+    GITHUB_USERNAME: process.env.GITHUB_USERNAME,
+    OPEN_WEATHER_URL: process.env.OPEN_WEATHER_URL,
+    OPEN_WEATHER_API_KEY: process.env.OPEN_WEATHER_API_KEY,
+    TWITTER_API_KEY: process.env.TWITTER_API_KEY,
+    TWITTER_API_KEY_SECRET: process.env.TWITTER_API_KEY_SECRET,
+    TWITTER_USERNAME: process.env.TWITTER_USERNAME
   }
 }
