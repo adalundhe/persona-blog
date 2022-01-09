@@ -7,6 +7,31 @@ export interface DevToEnv {
     DEVTO_URL: string;
 }
 
+export interface DevToData {
+    id: number;
+    title: string;
+    body_markdown: string;
+    tags: Array<string>;
+    positive_reactions_count: number;
+    created_at: string;
+    edited_at: string;
+    readable_publish_date: string;
+    user: {
+        name: string
+    }
+}
+
+export interface HashnodeData {
+    code: number;
+    success: boolean;
+    message: string;
+    post: {
+        _id: string;
+        dateAdded: string;
+        dateUpdated: string;
+    }
+}
+
 export interface HashnodeEnv {
     HASHNODE_USERNAME: string;
     HASHNODE_API_KEY: string;
@@ -26,6 +51,7 @@ export interface ArticleFetchRequest {
 
 export interface ArticlePostRequest {
     blogPost: SerializableBlogPost;
+    update?: boolean;
     env?: DevToEnv | HashnodeEnv;
 }
 

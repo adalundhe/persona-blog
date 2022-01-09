@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import getConfig from "next/config";
 import Case from 'case';
-import { ArticleFetchRequest, ArticleLinkFetchRequest, ArticlePostRequest, DevToEnv } from 'types/server/services/types';
+import { ArticleFetchRequest, ArticleLinkFetchRequest, ArticlePostRequest, DevToData, DevToEnv } from 'types/server/services/types';
 
 
 
@@ -62,7 +62,7 @@ class Client {
             return {
                 error: false,
                 message: 'OK',
-                data: articles.map((article: typeof articles[0]) => article.id),
+                data: articles.map((article: typeof articles[0]) => article.id).slice(0, parseInt(count as string)),
                 status
             };
         },
@@ -113,9 +113,10 @@ class Client {
             };
             
         },
-        createNew: async function({ 
+        createOrUpdate: async function({ 
             blogPost, 
-            env 
+            env,
+            update 
         }: ArticlePostRequest){
             let devToEnv = env as DevToEnv;
 
@@ -129,47 +130,100 @@ class Client {
                 DEVTO_URL
              } = <{ DEVTO_USERNAME: string, DEVTO_API_KEY: string, DEVTO_URL: string }>devToEnv;
 
-            const headers = { 'api-key': DEVTO_API_KEY };
-            const tags = blogPost.tags.length > 0 ? blogPost.tags : [
-                Case.camel(blogPost.title)
+            const headers = { 
+                'api-key': `${DEVTO_API_KEY}`,             
+                "Content-Type": "application/json" 
+            };
+
+            const tags = blogPost.tags.length > 0 ? blogPost.tags.map(
+                (tag: string) => Case.kebab(tag)
+            ) : [
+                Case.kebab(blogPost.title)
             ]
 
-            const { data, status }: AxiosResponse = await axios.post(
-                `${DEVTO_URL}/articles`, 
-                { 
-                    headers,
-                    data: {
-                        title: blogPost.title,
-                        published: true,
-                        body_markdown: blogPost.content,
-                        tags: tags
-                    } 
-                }
-            );
+            let parsedTags: string[] = [];
+            for (const tag in tags){
+                const splitTag = tag.split('-');
+                parsedTags = [
+                    ...parsedTags,
+                    ...splitTag
+                ];
+            }
 
-            if (status < 200 || status >= 300 || data.length < 1) return {
+            let devToRequestData: DevToData;
+            let devToRequestStatus: number;
+            
+            if (update){
+
+                const { data, status }: AxiosResponse = await axios.put(
+                    `${DEVTO_URL}/articles`, 
+                    {
+                        article: {
+                            title: blogPost.title,
+                            published: true,
+                            body_markdown: blogPost.content,
+                            tags: parsedTags
+                        }
+                    },
+                    {
+                        headers,
+                        params: {
+                            id: parseInt(blogPost.devToId as string)
+                        }
+                    }
+                );
+
+                devToRequestData = data;
+                devToRequestStatus = status;
+
+            }
+            else {
+                const { data, status }: AxiosResponse = await axios.post(
+                    `${DEVTO_URL}/articles`, 
+                    {
+                        article: {
+                            title: blogPost.title,
+                            published: true,
+                            body_markdown: blogPost.content,
+                            tags: parsedTags
+                        }
+                    },
+                    {
+                        headers
+                    }
+                );
+
+                devToRequestData = data;
+                devToRequestStatus = status;
+            }
+
+            if (devToRequestStatus < 200 || devToRequestStatus >= 300) return {
                 error: true,
                 message: 'Failed to fetch articles from DevTo.',
                 data: null,
-                status
+                status: devToRequestStatus
             }
 
             return {
                 error: false,
                 message: 'OK',
                 data: {
-                    id: data.id,
-                    title: data.title,
-                    content: await sanitizeDevToMarkdown(data.body_markdown),
-                    tags: data.tags,
-                    likes: data.positive_reactions_count,
-                    createdAt: new Date(data.created_at),
-                    updatedAt: new Date(data.edited_at ?? data.created_at),
+                    id: devToRequestData.id.toString(),
+                    title: devToRequestData.title,
+                    content: await sanitizeDevToMarkdown(
+                        devToRequestData.body_markdown
+                    ),
+                    tags: devToRequestData.tags,
+                    likes: devToRequestData.positive_reactions_count,
+                    createdAt: new Date(devToRequestData.created_at),
+                    updatedAt: new Date(
+                        devToRequestData.edited_at ?? devToRequestData.created_at
+                    ),
                     published: true,
-                    publish_date: data.readable_publish_date,
-                    author: data.user.name
+                    publish_date: devToRequestData.readable_publish_date,
+                    author: devToRequestData.user.name
                 },
-                status
+                status: devToRequestStatus
             };
         }
     }

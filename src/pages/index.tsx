@@ -5,24 +5,20 @@ import { SerializableBlogPost } from 'types/utils/blogs';
 
 export async function getStaticProps() {
 
-  let posts: Array<SerializableBlogPost> = [];
-
   const devToPosts = await utils.blogs.getLatestDevToPosts({
     count: "1"
   });
 
-  posts = devToPosts.props.data as Array<SerializableBlogPost>;
+  for (const idx in devToPosts.props.data){
 
-  for (const idx in posts){
-
-    const blogPost = posts[idx] as SerializableBlogPost;
+    const blogPost = devToPosts.props.data[idx] as SerializableBlogPost;
 
     if (blogPost.hashnodeId === null){
       const newHashNodePost = await utils.blogs.createNewHashnodePost({
         blogPost
       });
 
-      posts[idx] = newHashNodePost.props.data as SerializableBlogPost;
+      devToPosts.props.data[idx] = newHashNodePost.props.data as SerializableBlogPost;
     }
 
   }
@@ -40,17 +36,20 @@ export async function getStaticProps() {
         blogPost
       });
 
-      posts[idx] = newDevToPost.props.data as SerializableBlogPost;
+      hashnodePosts.props.data[idx] = newDevToPost.props.data as SerializableBlogPost;
     }
 
   }
 
   return {
     props: {
-      error: false,
-      message: 'OK',
-      data: posts,
-      status: 200
+      error: devToPosts.props.error || hashnodePosts.props.error,
+      message: devToPosts.props.error ? devToPosts.props.message : hashnodePosts.props.error ? hashnodePosts.props.message : 'OK',
+      data: [
+        ...devToPosts.props.data,
+        ...hashnodePosts.props.data
+      ],
+      status: (devToPosts.props.error || hashnodePosts.props.error) ? 400 : 200
     }
   }
 

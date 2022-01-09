@@ -78,41 +78,54 @@ const createNewHashnodePost = async ({ blogPost }: NewPostRequest) => {
   const prisma = new PrismaClient();
   const HashnodeClient = new hashnode.Client();
 
-  const hashnodePost = await HashnodeClient.posts.createNew({
-    blogPost: blogPost
-  })
-
-  if (hashnodePost.error){
-    return {
-      props: {
-        ...hashnodePost
+  try {
+    const hashnodePost = await HashnodeClient.posts.createOrUpdate({
+      blogPost
+    })
+  
+    if (hashnodePost.error){
+      return {
+        props: {
+          ...hashnodePost
+        }
       }
     }
-  }
-
-  const post = await prisma.blogPost.upsert({
-    create: blogPost,
-    update: {
-      hashnodeId: hashnodePost.data?.id ?? null,
-      createdAt: hashnodePost.data?.createdAt as Date,
-      updatedAt: hashnodePost.data?.updatedAt as Date,
-      publishedDate: hashnodePost.data?.publish_date as string
-    },
-    where: {
-      id: blogPost.id
+  
+    const post = await prisma.blogPost.upsert({
+      create: blogPost,
+      update: {
+        hashnodeId: hashnodePost.data?.id ?? null,
+        createdAt: hashnodePost.data?.createdAt as Date,
+        updatedAt: hashnodePost.data?.updatedAt as Date,
+        publishedDate: hashnodePost.data?.publish_date as string
+      },
+      where: {
+        id: blogPost.id
+      }
+    });
+  
+    return {
+      props: {
+        message: 'OK',
+        error: false,
+        data: {
+          ...post,
+          createdAt: post.createdAt.toISOString(),
+          updatedAt: post.updatedAt.toISOString()
+        } as SerializableBlogPost
+      }
     }
-  });
-
-  return {
-    props: {
-      message: 'OK',
-      error: false,
-      data: {
-        ...post,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString()
-      } as SerializableBlogPost
+    
+  } catch (requestError) {
+    
+    return {
+      props: {
+        error: true,
+        message: requestError as string,
+        status: 400
+      }
     }
+    
   }
 
 }
@@ -213,41 +226,54 @@ const createNewDevToPost = async ({ blogPost }: NewPostRequest) => {
   const prisma = new PrismaClient();
   const DevToClient = new devTo.Client();
 
-  const devToPost = await DevToClient.posts.createNew({
-    blogPost: blogPost
-  })
-
-  if (devToPost.error){
-    return {
-      props: {
-        ...devToPost
+  try {
+    const devToPost = await DevToClient.posts.createOrUpdate({
+      blogPost: blogPost
+    })
+  
+    if (devToPost.error){
+      return {
+        props: {
+          ...devToPost
+        }
       }
     }
-  }
 
-  const post = await prisma.blogPost.upsert({
-    create: blogPost,
-    update: {
-      devToId: devToPost.data?.id ?? null,
-      createdAt: devToPost.data?.createdAt as Date,
-      updatedAt: devToPost.data?.updatedAt as Date,
-      publishedDate: devToPost.data?.publish_date as string
-    },
-    where: {
-      id: blogPost.id
+    const post = await prisma.blogPost.upsert({
+      create: blogPost,
+      update: {
+        devToId: devToPost.data?.id ?? null,
+        createdAt: devToPost.data?.createdAt as Date,
+        updatedAt: devToPost.data?.updatedAt as Date,
+        publishedDate: devToPost.data?.publish_date as string
+      },
+      where: {
+        id: blogPost.id
+      }
+    });
+  
+    return {
+      props: {
+        message: 'OK',
+        error: false,
+        data: {
+          ...post,
+          createdAt: post.createdAt.toISOString(),
+          updatedAt: post.updatedAt.toISOString()
+        } as SerializableBlogPost
+      }
     }
-  });
 
-  return {
-    props: {
-      message: 'OK',
-      error: false,
-      data: {
-        ...post,
-        createdAt: post.createdAt.toISOString(),
-        updatedAt: post.updatedAt.toISOString()
-      } as SerializableBlogPost
+  } catch (requestError) {
+
+    return {
+      props: {
+        error: true,
+        message: requestError as string,
+        status: 400
+      }
     }
+    
   }
 }
 

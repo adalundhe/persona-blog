@@ -18,7 +18,7 @@ export default async function handler(
     await corsMiddleware.executeCors(req, res, corsMiddleware.settings);
 
     const postsReponse = await utils.blogs.getLatestHashnodePosts({
-      count: (req.query.count as string || "5")
+      count: (req.query.count as string || "1")
     });
 
     if (postsReponse.props.error){
@@ -31,8 +31,8 @@ export default async function handler(
 
       const blogPost = blogPosts[idx] as SerializableBlogPost;
 
-      if (blogPost.hashnodeId === null){
-        const newBlogPost = await utils.blogs.createNewHashnodePost({
+      if (blogPost.devToId === null){
+        const newBlogPost = await utils.blogs.createNewDevToPost({
           blogPost: blogPost
         });
 

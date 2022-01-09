@@ -20,7 +20,7 @@ export default async function handler(
     await corsMiddleware.executeCors(req, res, corsMiddleware.settings);
 
     const postsReponse = await utils.blogs.getLatestDevToPosts({
-      count: (req.query.count as string || "5")
+      count: (req.query.count as string || "1")
     });
 
     let blogPosts = postsReponse.props.data as Array<SerializableBlogPost>;
@@ -37,6 +37,10 @@ export default async function handler(
         const newBlogPost = await utils.blogs.createNewHashnodePost({
           blogPost: blogPost
         });
+
+        if (newBlogPost.props.error){
+          return await res.status(400).json(newBlogPost.props)
+        }
 
         blogPosts[idx] = newBlogPost.props.data as SerializableBlogPost;
 
