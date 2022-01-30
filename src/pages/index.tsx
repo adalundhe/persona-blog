@@ -1,24 +1,23 @@
-import { trpc } from '../utils/trpc';
-import { InferGetServerSidePropsType } from 'next';
+import { trpc } from 'utils/trpc';
+import { Posts } from 'components/'
 
 
-export async function getServerSideProps() {
-  
-  return {
-    props: {
+const IndexPage = () => {
+
+  const posts = trpc.useQuery([
+    "post.paginated", 
+    {
+      limit: 5, 
+      cursor: null
     }
-  }
-
-}
-
-const IndexPage = ({ }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-
-  const posts = trpc.useQuery(["post.paginated", {limit: 2, cursor: null}]); 
+  ]); 
 
   return (
     posts.data ? 
     <div>
-      <p>Hi!</p>
+      <Posts.PostList 
+        posts={posts.data.items}  
+      />
     </div> : <div>Loading...</div>
   );
 };
