@@ -8,15 +8,19 @@ export const ContextText = ({ ...props}: ReactMarkdownProps & HTMLAttributes<HTM
 
     return (
         <p>{
-            children.map((child: ReactNode) => {
+            children.map((child: ReactNode, idx: number) => {
                 
                 if (typeof child === "string" && child.includes("%[")){
                     // We can't support Hashnode's embeds right now.
-                    return undefined
+                    return <div key={`post-content-${idx}`}></div> 
                 }
 
+                child
+
                 return (
-                    child
+                    <div key={`post-content-${idx}`}>
+                        {child}
+                    </div>
                 )
             })
         }</p>
