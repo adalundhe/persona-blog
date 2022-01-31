@@ -10,6 +10,6 @@ export const Code = (props: PropsWithChildren<CodeProps>) => {
     }
 
     return (
-        <code {...codeProps} />
+        <code {...codeProps} className={`${codeProps.className ?? "text-zinc-500 tracking-tighter"} text-sm md:text-base my-4`} />
     )
 }

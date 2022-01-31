@@ -8,5 +8,7 @@ export const Markdown = {
     code: Code,
     img: CustomImage,
     h1: SectionHeader,
+    h2: SectionHeader,
+    h3: SectionHeader,
     p: ContextText
 }

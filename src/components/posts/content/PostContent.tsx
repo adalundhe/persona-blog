@@ -6,7 +6,7 @@ import "highlight.js/styles/night-owl.css";
 
 export const PostContent = ({ content }: {content: string}) => {
     return (
-        <div>
+        <div className="block">
             <ReactMarkdown
                 rehypePlugins={[rehypeHighlight, rehypeRaw]}
                 components={Markdown}
