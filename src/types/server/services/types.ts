@@ -8,6 +8,7 @@ export interface GithubEnv {
 
 export interface OpenWeatherEnv {
     OPEN_WEATHER_URL: string;
+    OPEN_WEATHER_ICON_URL: string;
     OPEN_WEATHER_API_KEY: string;
 }
 
@@ -139,4 +140,34 @@ export interface Tweet {
     tweet: string;
     likes: number;
     retweets: number;
+}
+
+
+export interface WeatherResponse {
+    error: boolean,
+    message: string,
+    weather: {
+        type: string,
+        icon: string;
+        description: string,
+        currentTemp: number,
+        currentTempFeel: number,
+        dailyTempHigh: number,
+        dailyTempLow: number,
+        humidity: number,
+        windSpeed: number,
+        sunrise: number,
+        sunset: number,
+        locationName: string,
+        country: string,
+        timezone: number
+    },
+    status: number
+}
+
+export interface WeatherIconResponse {
+    error: boolean;
+    message: string;
+    icon: any;
+    status: number;
 }

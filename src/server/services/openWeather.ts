@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import getConfig from "next/config";
-import { OpenWeatherEnv, WeatherPayload } from "types/server/services/types";
+import { OpenWeatherEnv, WeatherPayload, WeatherIconResponse } from "types/server/services/types";
 import { LocationWeatherRequest } from 'types/utils/content';
 
 const { publicRuntimeConfig } = getConfig();
@@ -19,12 +19,25 @@ class Client {
             const weatherData: WeatherPayload = response.data;
             const currentForecast = weatherData.weather.pop();
 
+            const weatherTypeMap: {[key: string]: string} = {
+                "Mist": "overcast",
+                "Thunderstorm": "rain",
+                "Drizzle": "rain",
+                "Fog": "overcast",
+                "Squall": "rain",
+                "Clear": "sunny",
+                "Rain": "rain",
+                "Snow": "snow",
+                "Clouds": currentForecast?.icon === "03d" || currentForecast?.icon === "03h" ? "overcast" : "partially_cloudy"
+            }
+
 
             return {
                 error: false,
                 message: 'OK',
                 weather: {
-                    type: currentForecast?.main,
+                    type: weatherTypeMap[currentForecast?.main as string],
+                    icon: currentForecast?.icon,
                     description: currentForecast?.description,
                     currentTemp: weatherData.main.temp,
                     currentTempFeel: weatherData.main.feels_like,

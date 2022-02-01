@@ -1,6 +1,5 @@
-import { RainCanvas } from "./RainCanvas";
-
+import { WeatherCanvas } from "./WeatherCanvas";
 
 export {
-    RainCanvas
-};
+    WeatherCanvas
+}

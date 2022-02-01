@@ -12,7 +12,7 @@ export const ShowPostButton = ({postIdx, displayed, updateDisplayed}: {postIdx: 
     return (
         <div className="justify-self-end whitespace-nowrap">
             <button onClick={onClick} className="text-sm leading-3">
-                <Link href={`/#post-${postIdx}`}>Read More</Link>
+                <Link href={displayed[postIdx] ? `/#nav-bar` : `/#post-${postIdx}`}>Read More</Link>
             </button>
         </div>
     )

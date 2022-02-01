@@ -5,8 +5,13 @@ import { createTRPCClient } from '@trpc/client';
 import { Posts } from 'components/'
 import { BlogPost } from '@prisma/client';
 import { AppRouter } from 'server/routers/_app';
-import { RainCanvas } from 'components/weather';
+import { WeatherCanvas } from 'components/weather';
 import { NavBar } from 'components/navigation';
+import axios, { AxiosResponse } from 'axios';
+import getConfig from "next/config";
+import { WeatherResponse } from 'types/server/services/types';
+const { publicRuntimeConfig } = getConfig();
+
 
 const IndexPage = () => {
 
@@ -24,15 +29,12 @@ const IndexPage = () => {
     }
   ]); 
 
+  const [localWeather, updateLocalWeather] = React.useState<WeatherResponse>();
   const [blogPosts, updateBlogPosts] = React.useState(postData.data?.items as BlogPost[]);
   const [cursor, updateCursor] = React.useState(postData.data?.nextCursor as string);
   const [showFetchNext, updateShowFetchNext] = React.useState(postData.data?.items.length === paginationLimit);
 
   const weather = "sunny";
-
-  const weatherStyles = {
-    "sunny": "bg-stone-150"
-  }
 
   const fetchNext = async () => {
 
@@ -54,26 +56,50 @@ const IndexPage = () => {
 
   };
 
+  React.useEffect(() => {
+    navigator.geolocation.getCurrentPosition((position) => {
+
+      const getWeather = async () => {
+        const localWeather: AxiosResponse<WeatherResponse> = await axios.get(
+          `${publicRuntimeConfig.API_URL}/content/weather/current`,
+          {
+            params: {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            }
+          }
+        );
+  
+        updateLocalWeather(localWeather.data)
+      }
+  
+      getWeather()
+    });
+    
+
+
+  }, [])
+
+
+
 
   return (
+   localWeather && blogPosts ? 
    <div>
-     <div className='h-1/5'>
-       <NavBar />
-     </div>
-     <div className='h-2/5'>
-      <RainCanvas />
-     </div>
-     {
-        blogPosts ? 
-        <div className={`${weatherStyles[weather]} h-full`}>
-          <Posts.PostList 
-            posts={blogPosts} 
-            fetchNext={fetchNext}
-            showFetchNext={showFetchNext}
-          />
-        </div> : <div>Loading...</div>
-     }
-   </div>
+      <div className='h-1/5'>
+        <NavBar />
+      </div>
+      <WeatherCanvas 
+        localWeather={localWeather} 
+      /> 
+      <div className={`bg-stone-150" h-full`}>
+        <Posts.PostList 
+          posts={blogPosts} 
+          fetchNext={fetchNext}
+          showFetchNext={showFetchNext}
+        />
+      </div>
+   </div> : <div>Loading...</div>
   );
 };
 
