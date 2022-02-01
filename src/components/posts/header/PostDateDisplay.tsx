@@ -4,7 +4,7 @@ export const PostDateDisplay = ({ createdDate }: {createdDate: Date }) => {
 
     return (
         <div className="w-full">
-            <p className="italic font-xs text-neutral-400">
+            <p className="italic font-xs text-neutral-500">
                 {createdDateString}
             </p>
         </div>

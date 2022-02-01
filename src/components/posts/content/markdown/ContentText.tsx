@@ -7,7 +7,7 @@ export const ContextText = ({ ...props}: ReactMarkdownProps & HTMLAttributes<HTM
     const children = Array.isArray(props.children) ? props.children : [ props.children ];
 
     return (
-        <p className={`${props.className ?? ""} my-1 text-sm`}>{
+        <p className={`${props.className ?? ""} my-1 text-sm text-gray-800/70`}>{
             children.map((child: ReactNode) => {
                 
                 if (typeof child === "string" && child.includes("%[")){

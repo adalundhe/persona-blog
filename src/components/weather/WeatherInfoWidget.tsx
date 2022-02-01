@@ -4,10 +4,9 @@ import Case from "case";
 const { publicRuntimeConfig } = getConfig();
 
 export const WeatherInfoWidget= ({ localWeather }: {localWeather: WeatherResponse}) => {
-    const temp = 61;
-    const celciusTemp = Math.floor((temp - 32) * 5/9)
+    const temp = Math.floor((localWeather.weather.currentTemp - 273.15) * 9/5 + 32);
 
-    console.log(localWeather)
+    const celciusTemp = Math.floor((temp - 32) * 5/9)
  
     return (
         <div className="h-3/5 w-3/5 lg:w-1/5 bg-gradient-to-r from-slate-700/50 to-slate-700/60 absolute flex flex-row justify-content text-gray-50/80 p-0">
@@ -15,7 +14,7 @@ export const WeatherInfoWidget= ({ localWeather }: {localWeather: WeatherRespons
                 <div className="w-full flex flex-wrap flex-row justify-center mx-2 px-4 h-1/3">
                     <h1 className="lg:text-[3vw] inline-block text-center align-middle">
                         <p className="h-1/2 inline-block text-center align-middle">
-                        {`${61}\u00B0F`}
+                        {`${temp}\u00B0F`}
                         </p>
                     <p className="w-full text-center text-xs mt-2">{
                         `${celciusTemp}\u00B0C`

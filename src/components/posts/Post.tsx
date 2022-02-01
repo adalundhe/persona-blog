@@ -17,7 +17,7 @@ export const Post = ({
 }) => {
 
     return (
-        <div className="w-full lg:w-1/2 bg-zinc-200 bg-opacity-25 pb-2 px-4 pt-2">
+        <div className="w-full lg:w-3/4 bg-stone-100 pb-2 px-4 pt-2 shrink border border-slate-700/80">
             <PostHeader 
                 createdDate={post.createdAt}
                 title={post.title}

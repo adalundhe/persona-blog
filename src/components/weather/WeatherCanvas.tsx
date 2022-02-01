@@ -1,6 +1,6 @@
 import React from "react";
 import { WeatherResponse } from "types/server/services/types";
-import { RainProcessor, CloudProcessor, SnowProcessor } from "./processors";
+import { RainProcessor, CloudProcessor, SnowProcessor, NightSkyProcessor } from "./processors";
 import { WeatherInfoWidget } from "./WeatherInfoWidget";
 
 function getWindowDimensions() {
@@ -13,45 +13,21 @@ function getWindowDimensions() {
 
 
 
-export const WeatherCanvas = ({ localWeather }: {localWeather: WeatherResponse}) => {
+export const WeatherCanvas = ({ 
+    WeatherContext, 
+    DayNightContext,
+    localWeather 
+}: {
+    WeatherContext: React.Context<string> | null, 
+    DayNightContext: React.Context<"day" | "night"> | null,
+    localWeather: WeatherResponse
+}) => {
 
-    const [showWeatherWidget, updateShowWeaterWidget] = React.useState(false);
+    const [showWeatherWidget, updateShowWeaterWidget] = React.useState(false);    
+    const weatherStyle = WeatherContext ? React.useContext(WeatherContext) : '';
+    const dayOrNightOption = DayNightContext ? React.useContext(DayNightContext) : "day";
 
-    type WeatherStyles = {
-        sunny: string;
-        partially_cloudy: string;
-        overcast: string;
-        rain: string;
-        snow: string;
-    }
-
-    const weatherStyles: {
-        day: WeatherStyles,
-        night: WeatherStyles
-    } = {
-        "day": {
-            "sunny": "animation bg-gradient-to-r from-indigo-200 to-sky-200 w-screen h-full",
-            "partially_cloudy": "animation bg-gradient-to-r from-slate-400 to-sky-200 w-screen h-full",
-            "overcast": "animation bg-gradient-to-r from-zinc-500 to-zinc-600  w-screen h-full",
-            "rain": "animation bg-gradient-to-r from-slate-600 to-slate-700 w-screen h-full",
-            "snow": "animation bg-gradient-to-r from-gray-500 to-gray-600 w-screen h-full"
-        },
-        "night": {
-            "sunny": "animation bg-gradient-to-r from-slate-900 to-neutral-900 w-screen h-full",
-            "partially_cloudy": "animation bg-gradient-to-r from-slate-900 to-neutral-900 w-screen h-full",
-            "overcast": "animation bg-gradient-to-r from-stone-800 to-zinc-900  w-screen h-full",
-            "rain": "animation bg-gradient-to-r from-slate-900 to-stone-900 w-screen h-full",
-            "snow": "animation bg-gradient-to-r from-slate-900 to-gray-900 w-screen h-full"
-        }
-    };
-
-    const currentUnixTime = parseInt((new Date().getTime() / 1000).toFixed(0));
-    const dayTimeString = currentUnixTime < localWeather.weather.sunset && currentUnixTime > localWeather.weather.sunrise  ? "day" : "night";
-
-    const localWeatherType = localWeather.weather.type as "sunny" | "partially_cloudy" | "overcast" | "rain" | "snow"
-
-    const weatherStyle = weatherStyles[dayTimeString][localWeatherType];
-    
+    console.log(dayOrNightOption)
 
     React.useEffect(() => {
         if (localWeather.weather.type === "partially_cloudy" || localWeather.weather.type === "overcast"){
@@ -73,10 +49,20 @@ export const WeatherCanvas = ({ localWeather }: {localWeather: WeatherResponse})
             });
         }
         else {
-            new CloudProcessor({
-                count: 3,
-                canvasSelector: "weather-canvas"
-            });
+            
+            if (dayOrNightOption === "day"){
+                new CloudProcessor({
+                    count: 3,
+                    canvasSelector: "weather-canvas"
+                });
+            }
+            else {
+                new NightSkyProcessor({
+                    spacing: 30,
+                    canvasSelector: "weather-canvas"
+                })
+            }
+
         }
 
         if (typeof window !== "undefined") {
@@ -98,7 +84,7 @@ export const WeatherCanvas = ({ localWeather }: {localWeather: WeatherResponse})
                 showWeatherWidget ? 
                 <WeatherInfoWidget localWeather={localWeather} /> : undefined
             }
-            <canvas id="weather-canvas" className={`${weatherStyle} block`}>
+            <canvas id="weather-canvas" className={`animation ${weatherStyle} w-screen h-full block`}>
             </canvas>
         </div>
     )

@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import getConfig from "next/config";
-import { OpenWeatherEnv, WeatherPayload, WeatherIconResponse } from "types/server/services/types";
+import { OpenWeatherEnv, WeatherPayload } from "types/server/services/types";
 import { LocationWeatherRequest } from 'types/utils/content';
 
 const { publicRuntimeConfig } = getConfig();
@@ -25,7 +25,7 @@ class Client {
                 "Drizzle": "rain",
                 "Fog": "overcast",
                 "Squall": "rain",
-                "Clear": "sunny",
+                "Clear": "clear",
                 "Rain": "rain",
                 "Snow": "snow",
                 "Clouds": currentForecast?.icon === "03d" || currentForecast?.icon === "03h" ? "overcast" : "partially_cloudy"
