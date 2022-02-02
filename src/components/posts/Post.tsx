@@ -1,6 +1,9 @@
+import React from "react"
 import { BlogPost } from "@prisma/client"
 import { PostHeader } from "./header"
 import { PostContent } from "./content"
+import { WeatherTypeContext } from "pages"
+import { TimeOptions, WeatherOptions } from "types/components/weather/types"
 
 export const Post = ({ 
     post, 
@@ -16,8 +19,14 @@ export const Post = ({
     updateDisplayed: React.Dispatch<React.SetStateAction<boolean[]>>
 }) => {
 
+    const weatherStyles = React.useContext(WeatherTypeContext);
+    const currentTime = weatherStyles.time as TimeOptions;
+    const currentWeather = weatherStyles.weather as WeatherOptions;
+    const backgroundStyle = weatherStyles.backgroundStyles[currentTime][currentWeather];
+    const borderStyle = weatherStyles.borderStyles[currentTime][currentWeather];
+
     return (
-        <div className="w-full lg:w-3/4 bg-stone-100 pb-2 px-4 pt-2 shrink border border-slate-700/80">
+        <div className={`w-full lg:w-3/4 ${backgroundStyle} pb-2 px-4 pt-2 shrink border ${borderStyle} shadow-md`}>
             <PostHeader 
                 createdDate={post.createdAt}
                 title={post.title}

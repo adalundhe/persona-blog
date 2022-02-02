@@ -1,3 +1,4 @@
+import { WeatherTypeContext } from "pages";
 import React from "react";
 import { WeatherResponse } from "types/server/services/types";
 import { RainProcessor, CloudProcessor, SnowProcessor, NightSkyProcessor } from "./processors";
@@ -14,20 +15,13 @@ function getWindowDimensions() {
 
 
 export const WeatherCanvas = ({ 
-    WeatherContext, 
-    DayNightContext,
     localWeather 
 }: {
-    WeatherContext: React.Context<string> | null, 
-    DayNightContext: React.Context<"day" | "night"> | null,
     localWeather: WeatherResponse
 }) => {
 
     const [showWeatherWidget, updateShowWeaterWidget] = React.useState(false);    
-    const weatherStyle = WeatherContext ? React.useContext(WeatherContext) : '';
-    const dayOrNightOption = DayNightContext ? React.useContext(DayNightContext) : "day";
-
-    console.log(dayOrNightOption)
+    const weatherContext = React.useContext(WeatherTypeContext);
 
     React.useEffect(() => {
         if (localWeather.weather.type === "partially_cloudy" || localWeather.weather.type === "overcast"){
@@ -50,7 +44,7 @@ export const WeatherCanvas = ({
         }
         else {
             
-            if (dayOrNightOption === "day"){
+            if (weatherContext.time === "day"){
                 new CloudProcessor({
                     count: 3,
                     canvasSelector: "weather-canvas"
@@ -79,12 +73,12 @@ export const WeatherCanvas = ({
 
 
     return (
-        <div className="w-screen relative flex flex-row justify-center items-center" id="canvas-container">
+        <div className="w-screen relative flex flex-row justify-center items-center shadow-md" id="canvas-container">
             {
                 showWeatherWidget ? 
                 <WeatherInfoWidget localWeather={localWeather} /> : undefined
             }
-            <canvas id="weather-canvas" className={`animation ${weatherStyle} w-screen h-full block`}>
+            <canvas id="weather-canvas" className={`animation ${weatherContext.style} w-screen h-full block`}>
             </canvas>
         </div>
     )
