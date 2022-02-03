@@ -28,6 +28,7 @@ export class CloudProcessor {
     ctx: CanvasRenderingContext2D;
     width: number;
     height: number;
+    interval: NodeJS.Timer | undefined;
 
     constructor({ count, canvasSelector }: {count: number, canvasSelector: string}){
     
@@ -58,11 +59,11 @@ export class CloudProcessor {
         const containerHeight = document.getElementById('canvas-container')?.clientHeight as number;
 
         if (window.innerHeight/containerHeight > 2){
-            this.height = document.getElementById('canvas-container')?.clientHeight as number * 0.75;
+            this.height = containerHeight * 0.75;
 
         }
         else {
-            this.height = document.getElementById('canvas-container')?.clientHeight as number/2;
+            this.height = containerHeight/2;
 
         }
 
@@ -82,25 +83,23 @@ export class CloudProcessor {
         })
   
         this.loaded = true;
-        setInterval(() => this.run(), 1000/this.frames);
-        window.addEventListener('resize',(_event) => this.resize());
+        this.interval = setInterval(() => this.run(), 1000/this.frames);
+        window.addEventListener('resize',(_event) => {
+            clearInterval(this.interval as NodeJS.Timer)
+            this.resize()
+            this.ctx.clearRect(0, 0, this.width, this.height);
+            this.interval = setInterval(() => this.run(), 1000/this.frames);
+            
+        });
 
         return this;
     }
 
     resize = function(this: CloudProcessor) {
-        this.canvas.width = window.innerWidth;
-        const containerHeight = document.getElementById('canvas-container')?.clientHeight as number;
-
-        if (window.innerHeight/containerHeight > 2){
-            this.height = document.getElementById('canvas-container')?.clientHeight as number * 0.75;
-
-        }
-        else {
-            this.height = document.getElementById('canvas-container')?.clientHeight as number/2;
-
-        }
-
+        this.width = document.getElementById('canvas-container')?.clientWidth as number;
+        this.height = document.getElementById('canvas-container')?.clientHeight as number;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
     }
 
     spawn = function(this: CloudProcessor){

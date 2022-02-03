@@ -31,7 +31,6 @@ class Client {
                 "Clouds": currentForecast?.icon === "03d" || currentForecast?.icon === "03h" ? "overcast" : "partially_cloudy"
             }
 
-
             return {
                 error: false,
                 message: 'OK',
@@ -45,7 +44,7 @@ class Client {
                     dailyTempLow: weatherData.main.temp_min,
                     humidity: weatherData.main.humidity,
                     windSpeed: weatherData.wind.speed,
-                    sunrise: weatherData.sys.sunrinse,
+                    sunrise: weatherData.sys.sunrise,
                     sunset: weatherData.sys.sunset,
                     locationName: weatherData.name,
                     country: weatherData.sys.country,

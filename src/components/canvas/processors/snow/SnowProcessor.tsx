@@ -10,6 +10,7 @@ export class SnowProcessor {
     canvasSelector: string;
     count: number;
     frames: number = 30;
+    interval: NodeJS.Timer;
     private angle = 0;
 
     constructor({ count, canvasSelector }: {count: number, canvasSelector: string}){
@@ -23,11 +24,11 @@ export class SnowProcessor {
         const containerHeight = document.getElementById('canvas-container')?.clientHeight as number;
 
         if (window.innerHeight/containerHeight > 2){
-            this.height = document.getElementById('canvas-container')?.clientHeight as number * 0.75;
+            this.height = containerHeight * 0.75;
 
         }
         else {
-            this.height = document.getElementById('canvas-container')?.clientHeight as number/2;
+            this.height = containerHeight/2;
 
         }
 
@@ -45,8 +46,15 @@ export class SnowProcessor {
             )
         );
 
-        setInterval(() => this.run(), 1000/this.frames)
-        window.addEventListener('resize',(_event) => this.resize());
+        this.interval = setInterval(() => this.run(), 1000/this.frames);
+        window.addEventListener('resize',(_event) => {
+            
+            clearInterval(this.interval)
+            this.resize()
+            this.ctx.clearRect(0, 0, this.width, this.height);
+            this.ctx.strokeStyle = 'rgba(174,194,224,0.5)';
+            this.interval = setInterval(() => this.run(), 1000/this.frames);
+        });
     }
 
     draw = function(this: SnowProcessor){
@@ -109,17 +117,10 @@ export class SnowProcessor {
     }
 
     resize = function(this: SnowProcessor) {
-        this.canvas.width = window.innerWidth;
-        const containerHeight = document.getElementById('canvas-container')?.clientHeight as number;
-
-        if (window.innerHeight/containerHeight > 2){
-            this.height = document.getElementById('canvas-container')?.clientHeight as number * 0.75;
-
-        }
-        else {
-            this.height = document.getElementById('canvas-container')?.clientHeight as number/2;
-
-        }
+        this.width = document.getElementById('canvas-container')?.clientWidth as number;
+        this.height = document.getElementById('canvas-container')?.clientHeight as number;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
     }
 
     run = function(this: SnowProcessor){

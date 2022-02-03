@@ -5,7 +5,7 @@ import { createTRPCClient } from '@trpc/client';
 import { Posts } from 'components/'
 import { BlogPost } from '@prisma/client';
 import { AppRouter } from 'server/routers/_app';
-import { WeatherCanvas } from 'components/weather';
+import { WeatherCanvas } from 'components/canvas';
 import { NavBar } from 'components/navigation';
 import axios, { AxiosResponse } from 'axios';
 import getConfig from "next/config";
@@ -81,7 +81,7 @@ const IndexPage = () => {
             }
           }
         );
-
+        
         updateLocalWeather(localWeather.data)
       }
   
@@ -104,7 +104,7 @@ const IndexPage = () => {
     const currentDate = new Date()
     const currentUnixTime = parseInt((currentDate.getTime() / 1000).toFixed(0));
     const hours = currentDate.getHours();
-
+    console.log(hours, currentUnixTime, weatherData)
     if (hours < 12){
       dayOrNightOption = currentUnixTime > weatherData.sunrise ? "day" : "night"
     }

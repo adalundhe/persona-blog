@@ -2,16 +2,8 @@ import { WeatherTypeContext } from "pages";
 import React from "react";
 import { WeatherResponse } from "types/server/services/types";
 import { RainProcessor, CloudProcessor, SnowProcessor, NightSkyProcessor } from "./processors";
+import { ProfilePictureWidget } from "./ProfilePictureWidget";
 import { WeatherInfoWidget } from "./WeatherInfoWidget";
-
-function getWindowDimensions() {
-  const { innerWidth: width, innerHeight: height } = window;
-  return {
-    width,
-    height
-  };
-}
-
 
 
 export const WeatherCanvas = ({ 
@@ -20,10 +12,31 @@ export const WeatherCanvas = ({
     localWeather: WeatherResponse
 }) => {
 
-    const [showWeatherWidget, updateShowWeaterWidget] = React.useState(false);    
     const weatherContext = React.useContext(WeatherTypeContext);
+    const resizeThreshold = 100;
+
+    const [dimensions, setDimensions] = React.useState({ 
+        height: window.innerHeight,
+        width: window.innerWidth
+    });
 
     React.useEffect(() => {
+        function handleResize() {
+          if (dimensions.height - window.innerHeight > resizeThreshold || dimensions.width - window.innerWidth > resizeThreshold){
+            setDimensions({
+                height: window.innerHeight,
+                width: window.innerWidth
+              });
+
+          }
+        
+        }
+    
+        window.addEventListener('resize', handleResize)
+    });
+
+    React.useEffect(() => {
+
         if (localWeather.weather.type === "partially_cloudy" || localWeather.weather.type === "overcast"){
             new CloudProcessor({
                 count: localWeather.weather.type === "partially_cloudy" ? 6 : 18,
@@ -54,30 +67,17 @@ export const WeatherCanvas = ({
                 new NightSkyProcessor({
                     spacing: 30,
                     canvasSelector: "weather-canvas"
-                })
+                });
             }
 
-        }
-
-        if (typeof window !== "undefined") {
-            const { height, width } = getWindowDimensions();
-            updateShowWeaterWidget(height < 1000 || width < 1000 ? false : true);
-
-            window.addEventListener('resize', (_) => {
-                const { height, width } = getWindowDimensions();
-                updateShowWeaterWidget(height < 1000 || width < 1000 ? false : true);
-            });
         }
  
     }, []);
 
-
     return (
         <div className="w-screen relative flex flex-row justify-center items-center shadow-md" id="canvas-container">
-            {
-                showWeatherWidget ? 
-                <WeatherInfoWidget localWeather={localWeather} /> : undefined
-            }
+            <WeatherInfoWidget localWeather={localWeather} />
+            <ProfilePictureWidget />
             <canvas id="weather-canvas" className={`animation ${weatherContext.style} w-screen h-full block`}>
             </canvas>
         </div>

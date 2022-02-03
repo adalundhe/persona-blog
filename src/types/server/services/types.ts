@@ -111,7 +111,7 @@ export interface WeatherMetadata {
     type: number;
     id: number;
     country: string;
-    sunrinse: number;
+    sunrise: number;
     sunset: number;
 }
 

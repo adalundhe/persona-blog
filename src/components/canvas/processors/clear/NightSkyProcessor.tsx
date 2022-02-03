@@ -25,11 +25,11 @@ export class NightSkyProcessor {
         const containerHeight = document.getElementById('canvas-container')?.clientHeight as number;
         
         if (window.innerHeight/containerHeight > 2){
-            this.height = document.getElementById('canvas-container')?.clientHeight as number * 0.75;
+            this.height = containerHeight * 0.75;
 
         }
         else {
-            this.height = document.getElementById('canvas-container')?.clientHeight as number/2;
+            this.height = containerHeight/2;
 
         }
 
@@ -90,16 +90,9 @@ export class NightSkyProcessor {
     }
 
     resize = function(this: NightSkyProcessor) {
-        this.canvas.width = window.innerWidth;
-        const containerHeight = document.getElementById('canvas-container')?.clientHeight as number;
-        
-        if (window.innerHeight/containerHeight > 2){
-            this.height = document.getElementById('canvas-container')?.clientHeight as number * 0.75;
-
-        }
-        else {
-            this.height = document.getElementById('canvas-container')?.clientHeight as number/2;
-
-        }
+        this.width = document.getElementById('canvas-container')?.clientWidth as number;
+        this.height = document.getElementById('canvas-container')?.clientHeight as number;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
     }
 }
